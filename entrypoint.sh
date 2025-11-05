@@ -44,6 +44,25 @@ echo "   Wingbits Docker Container Starting"
 echo "================================================"
 echo ""
 
+# Create a fake systemctl for scripts that need it (we use supervisor instead)
+cat > /usr/local/bin/systemctl << 'EOF'
+#!/bin/bash
+# Fake systemctl for Docker environment (using supervisor)
+echo "systemctl $@"
+exit 0
+EOF
+chmod +x /usr/local/bin/systemctl
+
+# Create a fake sudo (we're already root in the container)
+cat > /usr/local/bin/sudo << 'EOF'
+#!/bin/bash
+# Fake sudo for Docker environment (already running as root)
+exec "$@"
+EOF
+chmod +x /usr/local/bin/sudo
+
+export PATH="/usr/local/bin:$PATH"
+
 # Validate LAT and LONG
 if [ -z "$LAT" ]; then
     echo "ERROR: LAT environment variable is required"
@@ -89,7 +108,7 @@ longitude="$LONG"
 # Configure readsb location
 echo "Configuring readsb location..."
 if [ -f /usr/local/bin/readsb-set-location ]; then
-    /usr/local/bin/readsb-set-location "$LOCATION"
+    /usr/local/bin/readsb-set-location "$latitude" "$longitude"
 else
     # Manual configuration if script doesn't exist
     if [ -f /etc/default/readsb ]; then

@@ -29,7 +29,14 @@ RUN apt-get update && apt-get install -y \
     net-tools \
     usbutils \
     nginx \
+    collectd \
+    librrd-dev \
+    rrdtool \
     && rm -rf /var/lib/apt/lists/*
+
+# Create a fake systemctl to handle install scripts that try to use systemd
+RUN printf '#!/bin/bash\necho "systemctl $@"\nexit 0\n' > /usr/bin/systemctl && \
+    chmod +x /usr/bin/systemctl
 
 # Create necessary directories
 RUN mkdir -p /etc/wingbits \
@@ -38,17 +45,20 @@ RUN mkdir -p /etc/wingbits \
     /run/readsb \
     /run/collectd
 
-# Install readsb
+# Install readsb (ignore systemd errors during build)
 RUN curl -sL https://github.com/wiedehopf/adsb-scripts/raw/master/readsb-install.sh -o /tmp/readsb-install.sh && \
     chmod +x /tmp/readsb-install.sh && \
-    bash /tmp/readsb-install.sh && \
+    bash /tmp/readsb-install.sh || true && \
     rm /tmp/readsb-install.sh
 
-# Install graphs1090
+# Install graphs1090 (ignore systemd errors during build)
 RUN curl -sL https://github.com/wiedehopf/graphs1090/raw/master/install.sh -o /tmp/graphs1090-install.sh && \
     chmod +x /tmp/graphs1090-install.sh && \
-    bash /tmp/graphs1090-install.sh && \
+    bash /tmp/graphs1090-install.sh || true && \
     rm /tmp/graphs1090-install.sh
+
+# Remove fake systemctl
+RUN rm /usr/bin/systemctl
 
 # Install wingbits client
 RUN GOOS="linux" && \
