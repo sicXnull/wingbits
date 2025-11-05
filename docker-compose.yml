@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  wingbits:
+    build: .
+    container_name: wingbits-feeder
+    restart: unless-stopped
+    
+    # Device mapping for geosigner
+    devices:
+      - /dev/ttyACM0:/dev/ttyACM0
+    
+    # Environment variables
+    environment:
+      - LAT=${LAT}
+      - LONG=${LONG}
+      - DEVICE_ID=${DEVICE_ID}
+      - GAIN=${GAIN}
+      - ENABLE_HEATMAP=${ENABLE_HEATMAP:-false}
+    
+    # Port mappings
+    ports:
+      - "8080:8080"   # tar1090 web interface
+      - "8081:80"     # graphs1090 web interface
+      - "30001:30001" # readsb raw output
+      - "30002:30002" # readsb raw input
+      - "30003:30003" # readsb SBS output
+      - "30004:30004" # readsb Beast input
+      - "30005:30005" # readsb Beast output
+    
+    # Volume mappings for persistence
+    volumes:
+      - wingbits-data:/etc/wingbits
+      - wingbits-logs:/var/log/wingbits
+      - wingbits-history:/var/globe_history
+      - supervisor-logs:/var/log/supervisor
+    
+    # Privileged mode for USB device access
+    privileged: true
+    
+    # Network mode
+    network_mode: bridge
+
+volumes:
+  wingbits-data:
+    driver: local
+  wingbits-logs:
+    driver: local
+  wingbits-history:
+    driver: local
+  supervisor-logs:
+    driver: local
+
