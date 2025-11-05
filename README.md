@@ -71,16 +71,18 @@ docker-compose logs -f
 
 ### Device Mapping
 
-The container requires access to two USB devices:
+The container requires access to USB devices:
 
-1. **RTL-SDR dongle** - Automatically detected
+1. **RTL-SDR dongle** - Accessed via USB bus mapping
 2. **Geosigner** - Mapped via `/dev/ttyACM0:/dev/ttyACM0`
+3. **USB Bus** - Mapped via `/dev/bus/usb:/dev/bus/usb`
 
 If your geosigner is on a different device, update the `devices` section in `docker-compose.yml`:
 
 ```yaml
 devices:
   - /dev/ttyACM1:/dev/ttyACM0  # Map ttyACM1 on host to ttyACM0 in container
+  - /dev/bus/usb:/dev/bus/usb   # USB bus access
 ```
 
 ## Accessing Web Interfaces
@@ -102,6 +104,7 @@ docker run -d \
   --name wingbits \
   --restart unless-stopped \
   --device /dev/ttyACM0:/dev/ttyACM0 \
+  --device /dev/bus/usb:/dev/bus/usb \
   --privileged \
   -e LAT="-31.966645" \
   -e LONG="115.862013" \

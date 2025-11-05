@@ -6,9 +6,10 @@ services:
     container_name: wingbits-feeder
     restart: unless-stopped
     
-    # Device mapping for geosigner
+    # Device mapping for geosigner and USB devices
     devices:
       - /dev/ttyACM0:/dev/ttyACM0
+      - /dev/bus/usb:/dev/bus/usb
     
     # Environment variables
     environment:

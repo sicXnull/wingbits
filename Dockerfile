@@ -21,7 +21,6 @@ RUN apt-get update && apt-get install -y \
     debhelper \
     libncurses-dev \
     pkg-config \
-    dh-systemd \
     libusb-1.0-0-dev \
     libzstd-dev \
     zlib1g-dev \
@@ -29,6 +28,7 @@ RUN apt-get update && apt-get install -y \
     procps \
     net-tools \
     usbutils \
+    nginx \
     && rm -rf /var/lib/apt/lists/*
 
 # Create necessary directories
